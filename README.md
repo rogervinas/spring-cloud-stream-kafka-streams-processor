@@ -1,4 +1,6 @@
-# Spring Cloud Stream & Kafka Stream Binder & Processor API
+[![CI](https://github.com/rogervinas/spring-cloud-stream-kafka-streams-processor/actions/workflows/gradle.yml/badge.svg?branch=master)](https://github.com/rogervinas/spring-cloud-stream-kafka-streams-processor/actions/workflows/gradle.yml)
+
+# Spring Cloud Stream & Kafka Stream Binder + Processor
 
 ## Test this demo
 
