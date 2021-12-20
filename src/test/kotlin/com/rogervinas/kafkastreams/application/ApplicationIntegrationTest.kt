@@ -23,7 +23,7 @@ private const val USERNAME_1 = "user1"
 @SpringBootTest
 @Testcontainers
 @ActiveProfiles("test")
-internal class ApplicationIntegrationTest {
+class ApplicationIntegrationTest {
 
   companion object {
 

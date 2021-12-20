@@ -32,7 +32,7 @@ private const val USERNAME_4 = "user4"
 private val SCHEDULE = Duration.ofSeconds(1)
 private val EXPIRATION = Duration.ofSeconds(5)
 
-internal class UserStreamTest {
+class UserStreamTest {
 
   private lateinit var topologyTestDriver: TopologyTestDriver
   private lateinit var topicIn: TestInputTopic<String, UserTokenEvent>
