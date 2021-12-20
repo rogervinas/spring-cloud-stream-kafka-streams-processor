@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: "spring-cloud-stream-kafka-streams-processor"
+  cloud:
+    stream:
+      function:
+        definition: sensorTemperatureProcessor
+        bindings:
+          userStateStream-in-0: "pub.user.token"
+          userStateStream-out-0: "pub.user.state"
+      kafka:
+        streams:
+          binder:
+            applicationId: "${spring.application.name}"
+            brokers: "localhost:9094"
+            configuration:
+              default:
+                key.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+                value.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+
+user:
+  schedule: PT5S
+  expiration: PT20S
