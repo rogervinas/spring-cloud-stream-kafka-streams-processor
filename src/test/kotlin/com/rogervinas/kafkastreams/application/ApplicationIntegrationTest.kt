@@ -1,4 +1,4 @@
-package com.rogervinas.kafkastreams
+package com.rogervinas.kafkastreams.application
 
 import com.rogervinas.kafkastreams.helper.DockerComposeContainerHelper
 import com.rogervinas.kafkastreams.helper.KafkaConsumerHelper

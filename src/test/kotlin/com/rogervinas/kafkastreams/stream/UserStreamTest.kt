@@ -1,4 +1,4 @@
-package com.rogervinas.kafkastreams
+package com.rogervinas.kafkastreams.stream
 
 import com.rogervinas.kafkastreams.stream.UserStateEvent
 import com.rogervinas.kafkastreams.stream.UserStateEventType.COMPLETED
