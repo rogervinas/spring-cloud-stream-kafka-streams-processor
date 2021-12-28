@@ -20,4 +20,4 @@ spring:
 
 user:
   schedule: PT5S
-  expiration: PT20S
+  expiration: PT60S

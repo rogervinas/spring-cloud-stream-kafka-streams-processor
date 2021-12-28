@@ -13,12 +13,12 @@ import org.springframework.test.context.ActiveProfiles
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import java.time.Duration
+import java.util.UUID
 import java.util.function.Consumer
 
 private const val TOPIC_USER_TOKEN = "pub.user.token"
 private const val TOPIC_USER_STATE = "pub.user.state"
 
-private const val USERNAME_1 = "user1"
 
 @SpringBootTest
 @Testcontainers
@@ -45,32 +45,36 @@ class ApplicationIntegrationTest {
 
   @Test
   fun `should publish completed event`() {
-    kafkaProducerHelper.send(TOPIC_USER_TOKEN, USERNAME_1, """{"userId": "$USERNAME_1", "token": 1}""")
-    kafkaProducerHelper.send(TOPIC_USER_TOKEN, USERNAME_1, """{"userId": "$USERNAME_1", "token": 2}""")
-    kafkaProducerHelper.send(TOPIC_USER_TOKEN, USERNAME_1, """{"userId": "$USERNAME_1", "token": 3}""")
-    kafkaProducerHelper.send(TOPIC_USER_TOKEN, USERNAME_1, """{"userId": "$USERNAME_1", "token": 4}""")
-    kafkaProducerHelper.send(TOPIC_USER_TOKEN, USERNAME_1, """{"userId": "$USERNAME_1", "token": 5}""")
+    val username = UUID.randomUUID().toString()
+
+    kafkaProducerHelper.send(TOPIC_USER_TOKEN, username, """{"userId": "$username", "token": 1}""")
+    kafkaProducerHelper.send(TOPIC_USER_TOKEN, username, """{"userId": "$username", "token": 2}""")
+    kafkaProducerHelper.send(TOPIC_USER_TOKEN, username, """{"userId": "$username", "token": 3}""")
+    kafkaProducerHelper.send(TOPIC_USER_TOKEN, username, """{"userId": "$username", "token": 4}""")
+    kafkaProducerHelper.send(TOPIC_USER_TOKEN, username, """{"userId": "$username", "token": 5}""")
 
     val records = kafkaConsumerHelper.consumeAtLeast(1, Duration.ofMinutes(1))
 
     assertThat(records).singleElement().satisfies(Consumer {
-      assertThat(it.key()).isEqualTo(USERNAME_1)
-      JSONAssert.assertEquals("""{"userId": "$USERNAME_1", "state": "completed"}""", it.value(), true)
+      assertThat(it.key()).isEqualTo(username)
+      JSONAssert.assertEquals("""{"userId": "$username", "state": "COMPLETED"}""", it.value(), true)
     })
   }
 
   @Test
   fun `should publish expired event`() {
-    kafkaProducerHelper.send(TOPIC_USER_TOKEN, USERNAME_1, """{"userId": "$USERNAME_1", "token": 1}""")
-    kafkaProducerHelper.send(TOPIC_USER_TOKEN, USERNAME_1, """{"userId": "$USERNAME_1", "token": 2}""")
-    kafkaProducerHelper.send(TOPIC_USER_TOKEN, USERNAME_1, """{"userId": "$USERNAME_1", "token": 3}""")
-    kafkaProducerHelper.send(TOPIC_USER_TOKEN, USERNAME_1, """{"userId": "$USERNAME_1", "token": 4}""")
+    val username = UUID.randomUUID().toString()
+
+    kafkaProducerHelper.send(TOPIC_USER_TOKEN, username, """{"userId": "$username", "token": 1}""")
+    kafkaProducerHelper.send(TOPIC_USER_TOKEN, username, """{"userId": "$username", "token": 2}""")
+    kafkaProducerHelper.send(TOPIC_USER_TOKEN, username, """{"userId": "$username", "token": 3}""")
+    kafkaProducerHelper.send(TOPIC_USER_TOKEN, username, """{"userId": "$username", "token": 4}""")
 
     val records = kafkaConsumerHelper.consumeAtLeast(1, Duration.ofMinutes(1))
 
     assertThat(records).singleElement().satisfies(Consumer {
-      assertThat(it.key()).isEqualTo(USERNAME_1)
-      JSONAssert.assertEquals("""{"userId": "$USERNAME_1", "state": "expired"}""", it.value(), true)
+      assertThat(it.key()).isEqualTo(username)
+      JSONAssert.assertEquals("""{"userId": "$username", "state": "EXPIRED"}""", it.value(), true)
     })
   }
 }

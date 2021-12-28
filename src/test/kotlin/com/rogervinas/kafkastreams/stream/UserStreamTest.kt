@@ -1,10 +1,7 @@
 package com.rogervinas.kafkastreams.stream
 
-import com.rogervinas.kafkastreams.stream.UserStateEvent
 import com.rogervinas.kafkastreams.stream.UserStateEventType.COMPLETED
 import com.rogervinas.kafkastreams.stream.UserStateEventType.EXPIRED
-import com.rogervinas.kafkastreams.stream.UserStateStream
-import com.rogervinas.kafkastreams.stream.UserTokenEvent
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.StreamsConfig
@@ -50,7 +47,7 @@ class UserStreamTest {
     val config = Properties().apply {
       setProperty(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, stringSerde.javaClass.name)
       setProperty(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, JsonSerde::class.java.name)
-      setProperty(StreamsConfig.APPLICATION_ID_CONFIG, "test")
+      setProperty(StreamsConfig.APPLICATION_ID_CONFIG, "test-" + System.currentTimeMillis())
       setProperty(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "test-server")
       setProperty(JsonDeserializer.TRUSTED_PACKAGES, "*")
     }
@@ -80,6 +77,8 @@ class UserStreamTest {
     topicIn.pipeInput(USERNAME_1, UserTokenEvent(USERNAME_1, 3))
     topicIn.pipeInput(USERNAME_1, UserTokenEvent(USERNAME_1, 4))
     topicIn.pipeInput(USERNAME_1, UserTokenEvent(USERNAME_1, 5))
+
+    topologyTestDriver.advanceWallClockTime(EXPIRATION.minusMillis(10))
 
     assertThat(topicOut.readKeyValuesToList()).singleElement().satisfies(Consumer { topicOutMessage ->
       assertThat(topicOutMessage.key).isEqualTo(USERNAME_1)

@@ -1,3 +1,14 @@
+spring:
+  application:
+    name: "spring-cloud-stream-kafka-streams-processor-${random.int}"
+  cloud:
+    stream:
+      kafka:
+        streams:
+          binder:
+            configuration:
+              commit.interval.ms: 1000
+
 user:
   schedule: PT1S
-  expiration: PT5S
+  expiration: PT10S
