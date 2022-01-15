@@ -12,13 +12,13 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
-import java.time.Duration
+import org.testcontainers.shaded.org.awaitility.Awaitility.await
+import org.testcontainers.shaded.org.awaitility.Durations.*
 import java.util.UUID
 import java.util.function.Consumer
 
 private const val TOPIC_USER_TOKEN = "pub.user.token"
 private const val TOPIC_USER_STATE = "pub.user.state"
-
 
 @SpringBootTest
 @Testcontainers
@@ -53,12 +53,13 @@ class ApplicationIntegrationTest {
     kafkaProducerHelper.send(TOPIC_USER_TOKEN, username, """{"userId": "$username", "token": 4}""")
     kafkaProducerHelper.send(TOPIC_USER_TOKEN, username, """{"userId": "$username", "token": 5}""")
 
-    val records = kafkaConsumerHelper.consumeAtLeast(1, Duration.ofMinutes(1))
-
-    assertThat(records).singleElement().satisfies(Consumer {
-      assertThat(it.key()).isEqualTo(username)
-      JSONAssert.assertEquals("""{"userId": "$username", "state": "COMPLETED"}""", it.value(), true)
-    })
+    await().atMost(ONE_MINUTE).untilAsserted {
+      val record = kafkaConsumerHelper.consumeAtLeast(1, ONE_SECOND)
+      assertThat(record).singleElement().satisfies(Consumer {
+        assertThat(it.key()).isEqualTo(username)
+        JSONAssert.assertEquals("""{"userId": "$username", "state": "COMPLETED"}""", it.value(), true)
+      })
+    }
   }
 
   @Test
@@ -70,11 +71,12 @@ class ApplicationIntegrationTest {
     kafkaProducerHelper.send(TOPIC_USER_TOKEN, username, """{"userId": "$username", "token": 3}""")
     kafkaProducerHelper.send(TOPIC_USER_TOKEN, username, """{"userId": "$username", "token": 4}""")
 
-    val records = kafkaConsumerHelper.consumeAtLeast(1, Duration.ofMinutes(1))
-
-    assertThat(records).singleElement().satisfies(Consumer {
-      assertThat(it.key()).isEqualTo(username)
-      JSONAssert.assertEquals("""{"userId": "$username", "state": "EXPIRED"}""", it.value(), true)
-    })
+    await().atMost(ONE_MINUTE).untilAsserted {
+      val record = kafkaConsumerHelper.consumeAtLeast(1, ONE_SECOND)
+      assertThat(record).singleElement().satisfies(Consumer {
+        assertThat(it.key()).isEqualTo(username)
+        JSONAssert.assertEquals("""{"userId": "$username", "state": "EXPIRED"}""", it.value(), true)
+      })
+    }
   }
 }
