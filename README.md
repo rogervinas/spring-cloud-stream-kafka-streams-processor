@@ -70,6 +70,62 @@ fun `should publish expired event for one user`() {
 }
 ```
 
+## UserStateStream implementation
+
+We start first with Our UserStateStream as a **Function**:
+* Which input is a **KStream<String, UserTokenEvent>**, as we want a **String** as the Kafka message's key and a **UserTokenEvent** as the Kafka message's value
+* Which output is a **KStream<String, UserStateEvent>**, same here, **String** as the key and **UserStateEvent** as the value 
+
+```kotlin
+class UserStateStream(
+  private val schedule: Duration,
+  private val expiration: Duration
+) : Function<KStream<String, UserTokenEvent>, KStream<String, UserStateEvent>> {
+
+  override fun apply(input: KStream<String, UserTokenEvent>): KStream<String, UserStateEvent> {
+    TODO()
+  }
+}
+```
+
+Now step by step ...
+
+### 1. Aggregation by userId
+
+```kotlin
+private const val USER_STATE_STORE = "user-state"
+
+data class UserState(val userId: String = "", val tokens: List<Int> = emptyList()) {
+  operator fun plus(event: UserTokenEvent) = UserState(event.userId, tokens + event.token)
+}
+
+class UserStateStream(
+  private val schedule: Duration,
+  private val expiration: Duration
+) : Function<KStream<String, UserTokenEvent>, KStream<String, UserStateEvent>> {
+  override fun apply(input: KStream<String, UserTokenEvent>): KStream<String, UserStateEvent> {
+    return input
+      .selectKey { _, event -> event.userId } // just in case but the key should be userId already
+      .groupByKey()
+      .aggregate(
+        { UserState() },
+        { userId, event, state ->
+          logger.info("Aggregate $userId ${state.tokens} + ${event.token}")
+          state + event // we use the UserState's plus operator
+        },
+        Materialized.`as`<String, UserState, KeyValueStore<Bytes, ByteArray>>(USER_STATE_STORE)
+          .withKeySerde(Serdes.StringSerde())
+          .withValueSerde(JsonSerde(UserState::class.java))
+      )
+      .toStream()
+      // From here down it is just to avoid compilation errors
+      .mapValues { userId, _ ->
+        UserStateEvent(userId, COMPLETED) 
+      }
+  }
+}
+```
+
 ## Test this demo
 
 ```shell
