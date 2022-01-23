@@ -4,7 +4,6 @@ import com.rogervinas.kafkastreams.stream.UserStateEventType.COMPLETED
 import com.rogervinas.kafkastreams.stream.UserStateEventType.EXPIRED
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.common.utils.Bytes
-import org.apache.kafka.streams.StreamsConfig
 import org.apache.kafka.streams.kstream.KStream
 import org.apache.kafka.streams.kstream.Materialized
 import org.apache.kafka.streams.processor.PunctuationType
@@ -29,9 +28,6 @@ class UserStateStream(
   private val logger = LoggerFactory.getLogger(UserStateStream::class.java)
 
   override fun apply(input: KStream<String, UserTokenEvent>): KStream<String, UserStateEvent> {
-
-    StreamsConfig.COMMIT_INTERVAL_MS_CONFIG
-
     return input
       .selectKey { _, event -> event.userId }
       .groupByKey()
