@@ -2,9 +2,39 @@
 
 # Spring Cloud Stream & Kafka Streams Binder + Processor API
 
+* [Test-first using kafka-streams-test-utils](#test-first-using-kafka-streams-test-utils)
 * [Test this demo](#test-this-demo)
 * [Run this demo](#run-this-demo)
 * [See also](#see-also)
+
+[Spring Cloud Stream](https://spring.io/projects/spring-cloud-stream) is the solution provided by **Spring** to build applications connected to shared messaging systems.
+
+It offers an abstraction (the **binding**) that works the same whatever underneath implementation we use (the **binder**):
+* **Apache Kafka**
+* **Rabbit MQ**
+* **Kafka Streams**
+* **Amazon Kinesis**
+* ...
+
+In my previous post [Spring Cloud Stream Kafka Streams first steps](https://dev.to/adevintaspain/spring-cloud-stream-kafka-stream-binder-first-steps-1pch) I got working a simple example using the **Kafka Streams binder**.
+
+In this one the goal is to use the **Kafka Streams binder** and the  [Kafka Streams Processor API](https://kafka.apache.org/10/documentation/streams/developer-guide/processor-api.html) to implement the following scenario:
+
+![Diagram](doc/diagram.png)
+
+1. We receive messages with key = **userId** and value = { userId: string, token: number } from topic **pub.user.token**
+
+2. For every **userId** which we receive **token** 1, 2, 3, 4 and 5 within under 1 minute, we send a **completed** event to topic **pub.user.state**
+
+3. For every **userId** which we receive at least one **token** but not the complete 1, 2, 3, 4 and 5 sequence within under 1 minute, we send an **expired** event to topic **pub.user.state**
+
+Ready? Let's code! 🤓
+
+## Test-first using kafka-streams-test-utils
+
+```kotlin
+
+```
 
 ## Test this demo
 
