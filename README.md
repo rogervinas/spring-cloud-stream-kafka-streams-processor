@@ -1,6 +1,6 @@
 [![CI](https://github.com/rogervinas/spring-cloud-stream-kafka-streams-processor/actions/workflows/gradle.yml/badge.svg?branch=master)](https://github.com/rogervinas/spring-cloud-stream-kafka-streams-processor/actions/workflows/gradle.yml)
 
-# Spring Cloud Stream & Kafka Streams Processor API
+# Spring Cloud Stream & Kafka Streams Binder + Processor API
 
 * [Test this demo](#test-this-demo)
 * [Run this demo](#run-this-demo)
