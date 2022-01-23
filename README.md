@@ -32,8 +32,42 @@ Ready? Let's code! 🤓
 
 ## Test-first using kafka-streams-test-utils
 
-```kotlin
+Once kafka-streams-test-utils is properly setup in our [@BeforeEach](https://github.com/rogervinas/spring-cloud-stream-kafka-streams-processor/blob/master/src/test/kotlin/com/rogervinas/kafkastreams/stream/UserStreamTest.kt#L39) ...
 
+```kotlin
+data class UserTokenEvent(val userId: String, val token: Int)
+
+enum class UserStateEventType { COMPLETED, EXPIRED }
+data class UserStateEvent(val userId: String, val state: UserStateEventType)
+
+@Test
+fun `should publish completed event for one user`() {
+  topicIn.pipeInput(USERNAME_1, UserTokenEvent(USERNAME_1, 1))
+  topicIn.pipeInput(USERNAME_1, UserTokenEvent(USERNAME_1, 2))
+  topicIn.pipeInput(USERNAME_1, UserTokenEvent(USERNAME_1, 3))
+  topicIn.pipeInput(USERNAME_1, UserTokenEvent(USERNAME_1, 4))
+  topicIn.pipeInput(USERNAME_1, UserTokenEvent(USERNAME_1, 5))
+
+  topologyTestDriver.advanceWallClockTime(EXPIRATION.minusMillis(10))
+
+  assertThat(topicOut.readKeyValuesToList()).singleElement().satisfies(Consumer { topicOutMessage ->
+    assertThat(topicOutMessage.key).isEqualTo(USERNAME_1)
+    assertThat(topicOutMessage.value).isEqualTo(UserStateEvent(USERNAME_1, COMPLETED))
+  })
+}
+
+@Test
+fun `should publish expired event for one user`() {
+  topicIn.pipeInput(USERNAME_1, UserTokenEvent(USERNAME_1, 1))
+  topicIn.pipeInput(USERNAME_1, UserTokenEvent(USERNAME_1, 2))
+
+  topologyTestDriver.advanceWallClockTime(EXPIRATION.plus(SCHEDULE).plus(SCHEDULE))
+
+  assertThat(topicOut.readKeyValuesToList()).singleElement().satisfies(Consumer { topicOutMessage ->
+    assertThat(topicOutMessage.key).isEqualTo(USERNAME_1)
+    assertThat(topicOutMessage.value).isEqualTo(UserStateEvent(USERNAME_1, EXPIRED))
+  })
+}
 ```
 
 ## Test this demo
