@@ -126,6 +126,40 @@ class UserStateStream(
 }
 ```
 
+### 2. Completed UserStateEvents
+
+We can generate **completed** **UserStateEvents** straightaway once we receive the last **UserTokenEvent**:
+
+```kotlin
+data class UserState(val userId: String = "", val tokens: List<Int> = emptyList()) {
+  // ...
+  fun isCompleted() = tokens.containsAll(listOf(1, 2, 3, 4, 5))
+}
+
+class UserStateStream(
+  private val schedule: Duration,
+  private val expiration: Duration
+) : Function<KStream<String, UserTokenEvent>, KStream<String, UserStateEvent>> {
+  override fun apply(input: KStream<String, UserTokenEvent>): KStream<String, UserStateEvent> {
+    return input
+      // ...
+      .toStream()
+      .mapValues { state ->
+        logger.info("State $state")
+        when {
+          state.isCompleted() -> UserStateEvent(state.userId, COMPLETED)
+          else -> null
+        }
+      }
+      .filter { _, event -> event != null }
+      .mapValues { event ->
+        logger.info("Publish $event")
+        event!!
+      }
+  }
+}
+```
+
 ## Test this demo
 
 ```shell
