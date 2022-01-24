@@ -37,6 +37,7 @@ Ready? Let's code! 🤓
   * [1. Kafka helpers](#1-kafka-helpers)
   * [2. DockerCompose Testcontainer](#2-dockercompose-testcontainer)
   * [3. Tests](#3-tests)
+* [Important information about caching in the state stores](#important-information-about-caching-in-the-state-stores)
 * [Test this demo](#test-this-demo)
 * [Run this demo](#run-this-demo)
 * [See also](#see-also)
@@ -418,6 +419,29 @@ class ApplicationIntegrationTest {
 And just at this point all our tests should pass 🟩 👏
 
 That's it, happy coding! 💙
+
+## Important information about caching in the state stores
+
+If you [run this demo](#run-this-demo) you will notice that the **completed** **UserStateEvents** are not sent inmediately:
+```
+12:36:34.593 : Aggregate 1 [] + 1
+12:36:36.110 : Aggregate 1 [1] + 2
+12:36:37.660 : Aggregate 1 [1, 2] + 3
+12:36:38.061 : Aggregate 1 [1, 2, 3] + 4
+12:36:48.890 : Aggregate 1 [1, 2, 3, 4] + 5
+12:36:58.256 : State UserState(userId=1, tokens=[1, 2, 3, 4, 5], expired=false)
+12:36:58.262 : Publish UserStateEvent(userId=1, state=COMPLETED)
+```
+
+In this example ☝️ the **UserStateEvent** is sent 10 seconds after the last **UserTokenEvent** is received. 
+
+Why? The answer is: **caching**!
+
+As stated in [Kafka Streams > Developer Guide > Memory Management](https://kafka.apache.org/documentation/streams/developer-guide/memory-mgmt):
+> The semantics of caching is that data is flushed to the state store and forwarded to the next downstream processor node whenever the earliest of commit.interval.ms or cache.max.bytes.buffering (cache pressure) hits.
+
+And also in [A Guide to Kafka Streams and Its Uses](https://www.confluent.io/blog/how-kafka-streams-works-guide-to-stream-processing/#ktable):
+> KTable objects are backed by state stores, which enable you to look up and track these latest values by key. Updates are likely buffered into a cache, which gets flushed by default every 30 seconds.
 
 ## Test this demo
 
