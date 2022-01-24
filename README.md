@@ -258,6 +258,156 @@ class UserStateStream(
 
 And just at this point our **UserStreamTest** should pass 🟩 👌
 
+## Kafka Streams binder configuration
+
+Easy!
+
+```yaml
+spring:
+  application:
+    name: "spring-cloud-stream-kafka-streams-processor"
+  cloud:
+    stream:
+      function:
+        definition: userStateStream
+        bindings:
+          userStateStream-in-0: "pub.user.token"
+          userStateStream-out-0: "pub.user.state"
+      kafka:
+        streams:
+          binder:
+            applicationId: "${spring.application.name}"
+            brokers: "localhost:9094"
+            configuration:
+              default:
+                key.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+                value.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+```
+
+With this configuration:
+* **Spring Cloud Stream** will create a **Kafka Streams binder** connected to **localhost:9094**
+* We need to create a **@Bean** named **userStateStream** that should implement **Function<KStream, KStream>** interface
+    * This **@Bean** will connect a **KStream** subscribed to **pub.user.token** topic to another **KStream** publishing to **pub.user.state** topic
+
+You can find all the available configuration properties documented in [Kafka Streams Properties](https://cloud.spring.io/spring-cloud-stream-binder-kafka/spring-cloud-stream-binder-kafka.html#_kafka_streams_properties).
+
+## UserStateStream bean
+
+As required by our configuration we need to create a @Bean named `userStateStream`:
+
+```kotlin
+@Configuration
+class ApplicationConfiguration {
+
+  @Bean
+  fun userStateStream(
+    @Value("\${user.schedule}") schedule: Duration,
+    @Value("\${user.expiration}") expiration: Duration
+  ): Function<KStream<String, UserTokenEvent>, KStream<String, UserStateEvent>> = UserStateStream(schedule, expiration)
+}
+```
+
+## Integration Test
+
+We kind of "unit test" our UserStateStream with **kafka-streams-test-utils** but we need also an integration test using a Kafka container ... @Testcontainers to the rescue!
+
+### 1. Kafka helpers
+
+First we need utility classes to produce to Kafka and consume from Kafka using **kafka-clients** library:
+
+```kotlin
+
+class KafkaConsumerHelper(bootstrapServers: String, topic: String) {
+  
+  fun consumeAll(): List<ConsumerRecord<String, String>> {
+    // ...
+  }
+
+  fun consumeAtLeast(numberOfRecords: Int, timeout: Duration): List<ConsumerRecord<String, String>> {
+    // ...
+  }
+}
+
+class KafkaProducerHelper(bootstrapServers: String) {
+  
+  fun send(topic: String?, key: String, body: String) {
+    // ...
+  }
+}
+```
+
+### 2. DockerCompose Testcontainer
+
+As described in [Testcontainers + Junit5](https://www.testcontainers.org/test_framework_integration/junit_5/) we can use `@Testcontainers` annotation:
+
+```kotlin
+@SpringBootTest
+@Testcontainers
+@ActiveProfiles("test")
+class ApplicationIntegrationTest {
+
+  companion object {
+
+    @Container
+    val container = DockerComposeContainerHelper().createContainer()
+  }
+  
+  // ...
+}
+```
+
+### 3. Tests
+
+And finally the tests, using [Awaitility](https://github.com/awaitility/awaitility) as we are testing asynchronous stuff:
+
+```kotlin
+class ApplicationIntegrationTest {
+  
+  // ...
+
+  @Test
+  fun `should publish completed event`() {
+    val username = UUID.randomUUID().toString()
+
+    kafkaProducerHelper.send(TOPIC_USER_TOKEN, username, """{"userId": "$username", "token": 1}""")
+    kafkaProducerHelper.send(TOPIC_USER_TOKEN, username, """{"userId": "$username", "token": 2}""")
+    kafkaProducerHelper.send(TOPIC_USER_TOKEN, username, """{"userId": "$username", "token": 3}""")
+    kafkaProducerHelper.send(TOPIC_USER_TOKEN, username, """{"userId": "$username", "token": 4}""")
+    kafkaProducerHelper.send(TOPIC_USER_TOKEN, username, """{"userId": "$username", "token": 5}""")
+
+    await().atMost(ONE_MINUTE).untilAsserted {
+      val record = kafkaConsumerHelper.consumeAtLeast(1, ONE_SECOND)
+      assertThat(record).singleElement().satisfies(Consumer {
+        assertThat(it.key()).isEqualTo(username)
+        JSONAssert.assertEquals("""{"userId": "$username", "state": "COMPLETED"}""", it.value(), true)
+      })
+    }
+  }
+
+  @Test
+  fun `should publish expired event`() {
+    val username = UUID.randomUUID().toString()
+
+    kafkaProducerHelper.send(TOPIC_USER_TOKEN, username, """{"userId": "$username", "token": 1}""")
+    kafkaProducerHelper.send(TOPIC_USER_TOKEN, username, """{"userId": "$username", "token": 2}""")
+    kafkaProducerHelper.send(TOPIC_USER_TOKEN, username, """{"userId": "$username", "token": 3}""")
+    kafkaProducerHelper.send(TOPIC_USER_TOKEN, username, """{"userId": "$username", "token": 4}""")
+
+    await().atMost(ONE_MINUTE).untilAsserted {
+      val record = kafkaConsumerHelper.consumeAtLeast(1, ONE_SECOND)
+      assertThat(record).singleElement().satisfies(Consumer {
+        assertThat(it.key()).isEqualTo(username)
+        JSONAssert.assertEquals("""{"userId": "$username", "state": "EXPIRED"}""", it.value(), true)
+      })
+    }
+  }
+}
+```
+
+And just at this point all our test should pass 🟩 👏
+
+That's it, happy coding! 💙
+
 ## Test this demo
 
 ```shell
