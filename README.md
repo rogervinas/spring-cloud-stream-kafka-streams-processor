@@ -2,11 +2,6 @@
 
 # Spring Cloud Stream & Kafka Streams Binder + Processor API
 
-* [Test-first using kafka-streams-test-utils](#test-first-using-kafka-streams-test-utils)
-* [Test this demo](#test-this-demo)
-* [Run this demo](#run-this-demo)
-* [See also](#see-also)
-
 [Spring Cloud Stream](https://spring.io/projects/spring-cloud-stream) is the solution provided by **Spring** to build applications connected to shared messaging systems.
 
 It offers an abstraction (the **binding**) that works the same whatever underneath implementation we use (the **binder**):
@@ -16,7 +11,7 @@ It offers an abstraction (the **binding**) that works the same whatever undernea
 * **Amazon Kinesis**
 * ...
 
-In my previous post [Spring Cloud Stream Kafka Streams first steps](https://dev.to/adevintaspain/spring-cloud-stream-kafka-stream-binder-first-steps-1pch) I got working a simple example using the **Kafka Streams binder**.
+You can also check out [Spring Cloud Stream Kafka Streams first steps](https://github.com/rogervinas/spring-cloud-stream-kafka-streams-first-steps) where I got working a simple example using **Kafka Streams binder**.
 
 In this one the goal is to use the **Kafka Streams binder** and the  [Kafka Streams Processor API](https://kafka.apache.org/10/documentation/streams/developer-guide/processor-api.html) to implement the following scenario:
 
@@ -24,15 +19,31 @@ In this one the goal is to use the **Kafka Streams binder** and the  [Kafka Stre
 
 1. We receive messages with key = **userId** and value = { userId: string, token: number } from topic **pub.user.token**
 
-2. For every **userId** which we receive **token** 1, 2, 3, 4 and 5 within under 1 minute, we send a **completed** event to topic **pub.user.state**
+2. For every **userId** which we receive **token** 1, 2, 3, 4 and 5 within under **1 minute**, we send a **completed** event to topic **pub.user.state**
 
-3. For every **userId** which we receive at least one **token** but not the complete 1, 2, 3, 4 and 5 sequence within under 1 minute, we send an **expired** event to topic **pub.user.state**
+3. For every **userId** which we receive at least one **token** but not the complete 1, 2, 3, 4 and 5 sequence within under **1 minute**, we send an **expired** event to topic **pub.user.state**
 
 Ready? Let's code! 🤓
 
+* [Test-first using kafka-streams-test-utils](#test-first-using-kafka-streams-test-utils)
+* [UserStateStream implementation](#userstatestream-implementation)
+  * [1. Aggregation by userId](#1-aggregation-by-userid)
+  * [2. Completed UserStateEvents](#2-completed-userstateevents)
+  * [3. UserStateProcessor implementation](#3-userstateprocessor-implementation)
+  * [4. UserStateStream and UserStateProcessor integration](#4-userstatestream-and-userstateprocessor-integration)
+* [Kafka Streams binder configuration](#kafka-streams-binder-configuration)
+* [UserStateStream bean](#userstatestream-bean)
+* [Integration Test](#integration-test)
+  * [1. Kafka helpers](#1-kafka-helpers)
+  * [2. DockerCompose Testcontainer](#2-dockercompose-testcontainer)
+  * [3. Tests](#3-tests)
+* [Test this demo](#test-this-demo)
+* [Run this demo](#run-this-demo)
+* [See also](#see-also)
+
 ## Test-first using kafka-streams-test-utils
 
-Once kafka-streams-test-utils is properly setup in our [@BeforeEach](https://github.com/rogervinas/spring-cloud-stream-kafka-streams-processor/blob/master/src/test/kotlin/com/rogervinas/kafkastreams/stream/UserStreamTest.kt#L39) ...
+Once [kafka-streams-test-utils](https://kafka.apache.org/documentation/streams/developer-guide/testing.html) is properly setup in our [@BeforeEach](src/test/kotlin/com/rogervinas/kafkastreams/stream/UserStreamTest.kt#L39) we can implement this test:
 
 ```kotlin
 data class UserTokenEvent(val userId: String, val token: Int)
@@ -256,7 +267,7 @@ class UserStateStream(
 }
 ```
 
-And just at this point our **UserStreamTest** should pass 🟩 👌
+And just at this point our [UserStreamTest](src/test/kotlin/com/rogervinas/kafkastreams/stream/UserStreamTest.kt) should pass 🟩 👌
 
 ## Kafka Streams binder configuration
 
@@ -309,7 +320,7 @@ class ApplicationConfiguration {
 
 ## Integration Test
 
-We kind of "unit test" our UserStateStream with **kafka-streams-test-utils** but we need also an integration test using a Kafka container ... @Testcontainers to the rescue!
+We already "unit test" our **UserStateStream** with **kafka-streams-test-utils** but we need also an integration test using a Kafka container ... [Testcontainers](https://www.testcontainers.org) to the rescue!
 
 ### 1. Kafka helpers
 
@@ -404,7 +415,7 @@ class ApplicationIntegrationTest {
 }
 ```
 
-And just at this point all our test should pass 🟩 👏
+And just at this point all our tests should pass 🟩 👏
 
 That's it, happy coding! 💙
 
