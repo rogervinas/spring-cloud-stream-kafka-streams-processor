@@ -40,7 +40,11 @@ Ready? Let's code! 🤓
 * [Important information about caching in the state stores](#important-information-about-caching-in-the-state-stores)
 * [Test this demo](#test-this-demo)
 * [Run this demo](#run-this-demo)
-* [See also](#see-also)
+* See also
+  * :octocat: [Spring Cloud Stream Kafka step by step](https://github.com/rogervinas/spring-cloud-stream-kafka-step-by-step)
+  * :octocat: [Spring Cloud Stream & Kafka Confluent Avro Schema Registry](https://github.com/rogervinas/spring-cloud-stream-kafka-confluent-avro-schema-registry)
+  * :octocat: [Spring Cloud Stream & Kafka Streams Binder first steps](https://github.com/rogervinas/spring-cloud-stream-kafka-streams-first-steps)
+  * :octocat: [Spring Cloud Stream Multibinder](https://github.com/rogervinas/spring-cloud-stream-multibinder)
 
 ## Test-first using kafka-streams-test-utils
 
@@ -471,11 +475,3 @@ echo '1:{"userId":"1", "token":3}' | kcat -b localhost:9094 -P -t pub.user.token
 echo '1:{"userId":"1", "token":4}' | kcat -b localhost:9094 -P -t pub.user.token -K:
 echo '1:{"userId":"1", "token":5}' | kcat -b localhost:9094 -P -t pub.user.token -K:
 ```
-
-## See also
-
-:octocat: [Spring Cloud Stream Kafka step by step](https://github.com/rogervinas/spring-cloud-stream-kafka-step-by-step)
-
-:octocat: [Spring Cloud Stream & Kafka Streams Binder first steps](https://github.com/rogervinas/spring-cloud-stream-kafka-streams-first-steps)
-
-:octocat: [Spring Cloud Stream Multibinder](https://github.com/rogervinas/spring-cloud-stream-multibinder)
