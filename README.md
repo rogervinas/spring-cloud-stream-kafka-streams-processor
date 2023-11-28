@@ -1,8 +1,8 @@
 [![CI](https://github.com/rogervinas/spring-cloud-stream-kafka-streams-processor/actions/workflows/gradle.yml/badge.svg?branch=master)](https://github.com/rogervinas/spring-cloud-stream-kafka-streams-processor/actions/workflows/gradle.yml)
 ![Java](https://img.shields.io/badge/Java-11-blue?labelColor=black)
-![Kotlin](https://img.shields.io/badge/Kotlin-1.6.10-blue?labelColor=black)
-![SpringBoot](https://img.shields.io/badge/SpringBoot-2.6.2-blue?labelColor=black)
-![SpringCloudStream](https://img.shields.io/badge/SpringCloudStream-3.2.1-blue?labelColor=black)
+![Kotlin](https://img.shields.io/badge/Kotlin-1.6.21-blue?labelColor=black)
+![SpringBoot](https://img.shields.io/badge/SpringBoot-2.7.8-blue?labelColor=black)
+![SpringCloud](https://img.shields.io/badge/SpringCloud-2021.0.8-blue?labelColor=black)
 
 # Spring Cloud Stream & Kafka Streams Binder + Processor API
 
@@ -49,6 +49,9 @@ Ready? Let's code! 🤓
   * :octocat: [Spring Cloud Stream & Kafka Confluent Avro Schema Registry](https://github.com/rogervinas/spring-cloud-stream-kafka-confluent-avro-schema-registry)
   * :octocat: [Spring Cloud Stream & Kafka Streams Binder first steps](https://github.com/rogervinas/spring-cloud-stream-kafka-streams-first-steps)
   * :octocat: [Spring Cloud Stream Multibinder](https://github.com/rogervinas/spring-cloud-stream-multibinder)
+
+You can browse older versions of this repo:
+* [Spring Boot 2.x](https://github.com/rogervinas/spring-cloud-stream-kafka-streams-processor/tree/spring-boot-2.x)
 
 ## Test-first using kafka-streams-test-utils
 
