@@ -50,6 +50,9 @@ Ready? Let's code! 🤓
   * :octocat: [Spring Cloud Stream & Kafka Streams Binder first steps](https://github.com/rogervinas/spring-cloud-stream-kafka-streams-first-steps)
   * :octocat: [Spring Cloud Stream Multibinder](https://github.com/rogervinas/spring-cloud-stream-multibinder)
 
+You can browse older versions of this repo:
+* [Spring Boot 2.x](https://github.com/rogervinas/spring-cloud-stream-kafka-streams-processor/tree/spring-boot-2.x)
+
 ## Test-first using kafka-streams-test-utils
 
 Once [kafka-streams-test-utils](https://kafka.apache.org/documentation/streams/developer-guide/testing.html) is properly setup in our [@BeforeEach](src/test/kotlin/com/rogervinas/kafkastreams/stream/UserStreamTest.kt#L39) we can implement this test:
