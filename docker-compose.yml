@@ -1,24 +1,29 @@
-version: '3.4'
+version: "3"
 
 services:
 
-  kafka:
-    image: wurstmeister/kafka:2.12-2.5.0
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    hostname: zookeeper
+    ports:
+      - "2181:2181"
     environment:
-      - KAFKA_ADVERTISED_LISTENERS=INSIDE://:9092,OUTSIDE://localhost:9094
-      - KAFKA_LISTENERS=INSIDE://:9092,OUTSIDE://:9094
-      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
-      - KAFKA_INTER_BROKER_LISTENER_NAME=INSIDE
-      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
-      - KAFKA_BROKER_ID=0
-      - KAFKA_AUTO_LEADER_REBALANCE_ENABLE=false
-      - KAFKA_CREATE_TOPICS=pub.user.token:3:1,pub.user.state:3:1
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  broker:
+    image: confluentinc/cp-kafka:7.5.0
+    hostname: broker
+    depends_on:
+      - zookeeper
     ports:
       - "9094:9094"
-    links:
-      - zookeeper
-
-  zookeeper:
-    image: wurstmeister/zookeeper:3.4.6
-    ports:
-      - "2181"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:29094,PLAINTEXT_HOST://localhost:9094
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
