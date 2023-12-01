@@ -17,7 +17,7 @@ It offers an abstraction (the **binding**) that works the same whatever undernea
 
 You can also check out [Spring Cloud Stream Kafka Streams first steps](https://github.com/rogervinas/spring-cloud-stream-kafka-streams-first-steps) where I got working a simple example using **Kafka Streams binder**.
 
-In this one the goal is to use the **Kafka Streams binder** and the  [Kafka Streams Processor API](https://kafka.apache.org/documentation/streams/developer-guide/processor-api.html) to implement the following scenario:
+In this one the goal is to use the **Kafka Streams binder** and the [Kafka Streams Processor API](https://kafka.apache.org/documentation/streams/developer-guide/processor-api.html) to implement the following scenario:
 
 ![Diagram](doc/diagram.png)
 
@@ -97,7 +97,7 @@ fun `should publish expired event for one user`() {
 
 We start first with our **UserStateStream** implementation as a **Function**:
 * Which input is a **KStream<String, UserTokenEvent>**, as we want a **String** as the Kafka message's key and a **UserTokenEvent** as the Kafka message's value
-* Which output is a **KStream<String, UserStateEvent>**, same here, **String** as the key and **UserStateEvent** as the value 
+* Which output is a **KStream<String, UserStateEvent>**, same here, **String** as the key and **UserStateEvent** as the value
 
 ```kotlin
 class UserStateStream(
@@ -468,7 +468,7 @@ docker-compose up -d
 docker-compose down
 ```
 
-Then you can use [kcat](https://github.com/edenhill/kcat) (formerly know as **kafkacat**) to produce/consume to/from **Kafka**:
+Then you can use [kcat](https://github.com/edenhill/kcat) to produce/consume to/from **Kafka**:
 ```shell
 # consume
 kcat -b localhost:9094 -C -t pub.user.token -f '%k %s\n'
