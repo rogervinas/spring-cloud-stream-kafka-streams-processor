@@ -18,18 +18,20 @@ import java.time.Duration
 import java.util.Properties
 import java.util.function.Consumer
 
-private const val TOPIC_IN = "topic.in"
-private const val TOPIC_OUT = "topic.out"
-
-private const val USERNAME_1 = "user1"
-private const val USERNAME_2 = "user2"
-private const val USERNAME_3 = "user3"
-private const val USERNAME_4 = "user4"
-
-private val SCHEDULE = Duration.ofSeconds(1)
-private val EXPIRATION = Duration.ofSeconds(5)
-
 class UserStreamTest {
+
+  companion object {
+    private const val TOPIC_IN = "topic.in"
+    private const val TOPIC_OUT = "topic.out"
+
+    private const val USERNAME_1 = "user1"
+    private const val USERNAME_2 = "user2"
+    private const val USERNAME_3 = "user3"
+    private const val USERNAME_4 = "user4"
+
+    private val SCHEDULE = Duration.ofSeconds(1)
+    private val EXPIRATION = Duration.ofSeconds(5)
+  }
 
   private lateinit var topologyTestDriver: TopologyTestDriver
   private lateinit var topicIn: TestInputTopic<String, UserTokenEvent>
