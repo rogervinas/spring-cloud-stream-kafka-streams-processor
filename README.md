@@ -17,7 +17,7 @@ It offers an abstraction (the **binding**) that works the same whatever undernea
 
 You can also check out [Spring Cloud Stream Kafka Streams first steps](https://github.com/rogervinas/spring-cloud-stream-kafka-streams-first-steps) where I got working a simple example using **Kafka Streams binder**.
 
-In this one the goal is to use the **Kafka Streams binder** and the  [Kafka Streams Processor API](https://kafka.apache.org/10/documentation/streams/developer-guide/processor-api.html) to implement the following scenario:
+In this one the goal is to use the **Kafka Streams binder** and the  [Kafka Streams Processor API](https://kafka.apache.org/documentation/streams/developer-guide/processor-api.html) to implement the following scenario:
 
 ![Diagram](doc/diagram.png)
 
