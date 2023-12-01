@@ -2,12 +2,14 @@ spring:
   application:
     name: "spring-cloud-stream-kafka-streams-processor"
   cloud:
+    function:
+      definition: userStateStream
     stream:
-      function:
-        definition: userStateStream
-        bindings:
-          userStateStream-in-0: "pub.user.token"
-          userStateStream-out-0: "pub.user.state"
+      bindings:
+        userStateStream-in-0:
+          destination: "pub.user.token"
+        userStateStream-out-0:
+          destination: "pub.user.state"
       kafka:
         streams:
           binder:
