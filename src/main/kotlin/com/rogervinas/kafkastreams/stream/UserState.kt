@@ -1,10 +1,8 @@
 package com.rogervinas.kafkastreams.stream
 
-data class UserState(val userId: String = "", val tokens: List<Int> = emptyList(), private val expired: Boolean = false) {
+data class UserState(val userId: String = "", val tokens: List<Int> = emptyList(), val expired: Boolean = false) {
 
-  fun isCompleted() = tokens.containsAll(listOf(1, 2, 3, 4, 5))
-
-  fun isExpired() = expired
+  val completed = tokens.containsAll(listOf(1, 2, 3, 4, 5))
 
   fun expire() = UserState(userId, tokens, true)
 

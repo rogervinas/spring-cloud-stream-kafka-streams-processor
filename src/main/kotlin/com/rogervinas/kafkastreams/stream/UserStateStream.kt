@@ -47,8 +47,8 @@ class UserStateStream(
         logger.info("State $state")
         when {
           state == null -> null
-          state.isCompleted() -> UserStateEvent(state.userId, COMPLETED)
-          state.isExpired() -> UserStateEvent(state.userId, EXPIRED)
+          state.completed -> UserStateEvent(state.userId, COMPLETED)
+          state.expired -> UserStateEvent(state.userId, EXPIRED)
           else -> null
         }
       }
@@ -73,7 +73,7 @@ class UserStateProcessor(
       stateStore.all().forEachRemaining {
         val age = Duration.ofMillis(time - it.value.timestamp())
         if (age > expiration) {
-          if (it.value.value().isExpired()) {
+          if (it.value.value().expired) {
             logger.info("Delete ${it.key}")
             stateStore.delete(it.key)
           } else {
