@@ -24,14 +24,14 @@ class DockerComposeContainerHelper {
         KAFKA_PORT,
         WaitAllStrategy(WITH_INDIVIDUAL_TIMEOUTS_ONLY)
           .withStrategy(forListeningPort())
-          .withStrategy(forLogMessage(".*creating topics.*", 1))
+          .withStrategy(forLogMessage(".*started.*", 1))
       )
       .withExposedService(
         ZOOKEEPER,
         ZOOKEEPER_PORT,
         WaitAllStrategy(WITH_INDIVIDUAL_TIMEOUTS_ONLY)
           .withStrategy(forListeningPort())
-          .withStrategy(forLogMessage(".*binding to port.*", 1))
+          .withStrategy(forLogMessage(".*Started.*", 1))
       )
 
   }
