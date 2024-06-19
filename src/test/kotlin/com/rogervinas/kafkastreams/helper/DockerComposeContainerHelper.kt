@@ -33,6 +33,5 @@ class DockerComposeContainerHelper {
           .withStrategy(forListeningPort())
           .withStrategy(forLogMessage(".*Started.*", 1))
       )
-
   }
 }
