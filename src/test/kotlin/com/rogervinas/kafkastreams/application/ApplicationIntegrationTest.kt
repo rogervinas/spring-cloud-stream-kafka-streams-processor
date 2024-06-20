@@ -13,7 +13,8 @@ import org.springframework.test.context.ActiveProfiles
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.shaded.org.awaitility.Awaitility.await
-import org.testcontainers.shaded.org.awaitility.Durations.*
+import org.testcontainers.shaded.org.awaitility.Durations.ONE_MINUTE
+import org.testcontainers.shaded.org.awaitility.Durations.ONE_SECOND
 import java.util.UUID
 import java.util.function.Consumer
 
@@ -24,9 +25,7 @@ private const val TOPIC_USER_STATE = "pub.user.state"
 @Testcontainers
 @ActiveProfiles("test")
 class ApplicationIntegrationTest {
-
   companion object {
-
     @Container
     val container = DockerComposeContainerHelper().createContainer()
   }
@@ -55,10 +54,12 @@ class ApplicationIntegrationTest {
 
     await().atMost(ONE_MINUTE).untilAsserted {
       val record = kafkaConsumerHelper.consumeAtLeast(1, ONE_SECOND)
-      assertThat(record).singleElement().satisfies(Consumer {
-        assertThat(it.key()).isEqualTo(username)
-        JSONAssert.assertEquals("""{"userId": "$username", "state": "COMPLETED"}""", it.value(), true)
-      })
+      assertThat(record).singleElement().satisfies(
+        Consumer {
+          assertThat(it.key()).isEqualTo(username)
+          JSONAssert.assertEquals("""{"userId": "$username", "state": "COMPLETED"}""", it.value(), true)
+        },
+      )
     }
   }
 
@@ -73,10 +74,12 @@ class ApplicationIntegrationTest {
 
     await().atMost(ONE_MINUTE).untilAsserted {
       val record = kafkaConsumerHelper.consumeAtLeast(1, ONE_SECOND)
-      assertThat(record).singleElement().satisfies(Consumer {
-        assertThat(it.key()).isEqualTo(username)
-        JSONAssert.assertEquals("""{"userId": "$username", "state": "EXPIRED"}""", it.value(), true)
-      })
+      assertThat(record).singleElement().satisfies(
+        Consumer {
+          assertThat(it.key()).isEqualTo(username)
+          JSONAssert.assertEquals("""{"userId": "$username", "state": "EXPIRED"}""", it.value(), true)
+        },
+      )
     }
   }
 }

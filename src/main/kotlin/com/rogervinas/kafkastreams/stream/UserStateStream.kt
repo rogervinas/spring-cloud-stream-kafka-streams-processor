@@ -22,9 +22,8 @@ private const val USER_STATE_STORE = "user-state"
 
 class UserStateStream(
   private val schedule: Duration,
-  private val expiration: Duration
+  private val expiration: Duration,
 ) : Function<KStream<String, UserTokenEvent>, KStream<String, UserStateEvent>> {
-
   private val logger = LoggerFactory.getLogger(UserStateStream::class.java)
 
   override fun apply(input: KStream<String, UserTokenEvent>): KStream<String, UserStateEvent> {
@@ -39,7 +38,7 @@ class UserStateStream(
         },
         Materialized.`as`<String, UserState, KeyValueStore<Bytes, ByteArray>>(USER_STATE_STORE)
           .withKeySerde(Serdes.StringSerde())
-          .withValueSerde(JsonSerde(UserState::class.java))
+          .withValueSerde(JsonSerde(UserState::class.java)),
       )
       .toStream()
       .apply { process(ProcessorSupplier { UserStateProcessor(schedule, expiration) }, USER_STATE_STORE) }
@@ -62,9 +61,8 @@ class UserStateStream(
 
 class UserStateProcessor(
   private val schedule: Duration,
-  private val expiration: Duration
+  private val expiration: Duration,
 ) : Processor<String, UserState, Void, Void> {
-
   private val logger = LoggerFactory.getLogger(UserStateProcessor::class.java)
 
   override fun init(context: ProcessorContext<Void, Void>) {

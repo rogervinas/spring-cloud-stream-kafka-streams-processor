@@ -19,7 +19,6 @@ import java.util.Properties
 import java.util.function.Consumer
 
 class UserStreamTest {
-
   companion object {
     private const val TOPIC_IN = "topic.in"
     private const val TOPIC_OUT = "topic.out"
@@ -46,25 +45,28 @@ class UserStreamTest {
       .apply(streamsBuilder.stream(TOPIC_IN))
       .to(TOPIC_OUT)
 
-    val config = Properties().apply {
-      setProperty(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, stringSerde.javaClass.name)
-      setProperty(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, JsonSerde::class.java.name)
-      setProperty(StreamsConfig.APPLICATION_ID_CONFIG, "test-" + System.currentTimeMillis())
-      setProperty(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "test-server")
-      setProperty(JsonDeserializer.TRUSTED_PACKAGES, "*")
-    }
+    val config =
+      Properties().apply {
+        setProperty(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, stringSerde.javaClass.name)
+        setProperty(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, JsonSerde::class.java.name)
+        setProperty(StreamsConfig.APPLICATION_ID_CONFIG, "test-" + System.currentTimeMillis())
+        setProperty(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "test-server")
+        setProperty(JsonDeserializer.TRUSTED_PACKAGES, "*")
+      }
     val topology = streamsBuilder.build()
     topologyTestDriver = TopologyTestDriver(topology, config)
-    topicIn = topologyTestDriver.createInputTopic(
-      TOPIC_IN,
-      stringSerde.serializer(),
-      JsonSerde(UserTokenEvent::class.java).serializer()
-    )
-    topicOut = topologyTestDriver.createOutputTopic(
-      TOPIC_OUT,
-      stringSerde.deserializer(),
-      JsonSerde(UserStateEvent::class.java).deserializer()
-    )
+    topicIn =
+      topologyTestDriver.createInputTopic(
+        TOPIC_IN,
+        stringSerde.serializer(),
+        JsonSerde(UserTokenEvent::class.java).serializer(),
+      )
+    topicOut =
+      topologyTestDriver.createOutputTopic(
+        TOPIC_OUT,
+        stringSerde.deserializer(),
+        JsonSerde(UserStateEvent::class.java).deserializer(),
+      )
   }
 
   @AfterEach
@@ -82,10 +84,12 @@ class UserStreamTest {
 
     topologyTestDriver.advanceWallClockTime(EXPIRATION.minusMillis(10))
 
-    assertThat(topicOut.readKeyValuesToList()).singleElement().satisfies(Consumer { topicOutMessage ->
-      assertThat(topicOutMessage.key).isEqualTo(USERNAME_1)
-      assertThat(topicOutMessage.value).isEqualTo(UserStateEvent(USERNAME_1, COMPLETED))
-    })
+    assertThat(topicOut.readKeyValuesToList()).singleElement().satisfies(
+      Consumer { topicOutMessage ->
+        assertThat(topicOutMessage.key).isEqualTo(USERNAME_1)
+        assertThat(topicOutMessage.value).isEqualTo(UserStateEvent(USERNAME_1, COMPLETED))
+      },
+    )
   }
 
   @Test
@@ -95,10 +99,12 @@ class UserStreamTest {
 
     topologyTestDriver.advanceWallClockTime(EXPIRATION.plus(SCHEDULE).plus(SCHEDULE))
 
-    assertThat(topicOut.readKeyValuesToList()).singleElement().satisfies(Consumer { topicOutMessage ->
-      assertThat(topicOutMessage.key).isEqualTo(USERNAME_1)
-      assertThat(topicOutMessage.value).isEqualTo(UserStateEvent(USERNAME_1, EXPIRED))
-    })
+    assertThat(topicOut.readKeyValuesToList()).singleElement().satisfies(
+      Consumer { topicOutMessage ->
+        assertThat(topicOutMessage.key).isEqualTo(USERNAME_1)
+        assertThat(topicOutMessage.value).isEqualTo(UserStateEvent(USERNAME_1, EXPIRED))
+      },
+    )
   }
 
   @Test
@@ -132,8 +138,8 @@ class UserStreamTest {
         Pair(USERNAME_1, UserStateEvent(USERNAME_1, COMPLETED)),
         Pair(USERNAME_2, UserStateEvent(USERNAME_2, EXPIRED)),
         Pair(USERNAME_3, UserStateEvent(USERNAME_3, EXPIRED)),
-        Pair(USERNAME_4, UserStateEvent(USERNAME_4, COMPLETED))
-      )
+        Pair(USERNAME_4, UserStateEvent(USERNAME_4, COMPLETED)),
+      ),
     )
   }
 }
