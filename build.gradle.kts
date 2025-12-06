@@ -12,7 +12,6 @@ plugins {
 
 group = "com.rogervinas"
 version = "0.0.1-SNAPSHOT"
-java.sourceCompatibility = JavaVersion.VERSION_21
 
 repositories {
   mavenCentral()
@@ -26,7 +25,8 @@ dependencies {
   implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
   implementation("org.springframework.cloud:spring-cloud-stream")
   implementation("org.springframework.cloud:spring-cloud-stream-binder-kafka-streams")
-  implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+  implementation("org.springframework.boot:spring-boot-starter-json")
+  implementation("org.springframework.boot:spring-boot-starter-kotlin-serialization")
 
   testImplementation("org.springframework.boot:spring-boot-starter-test")
   testImplementation("org.apache.kafka:kafka-streams-test-utils")
