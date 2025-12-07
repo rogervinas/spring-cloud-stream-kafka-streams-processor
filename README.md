@@ -1,8 +1,7 @@
 [![CI](https://github.com/rogervinas/spring-cloud-stream-kafka-streams-processor/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/rogervinas/spring-cloud-stream-kafka-streams-processor/actions/workflows/ci.yml)
 ![Java](https://img.shields.io/badge/Java-21-blue?labelColor=black)
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.x-blue?labelColor=black)
-![SpringBoot](https://img.shields.io/badge/SpringBoot-3.x-blue?labelColor=black)
-![SpringCloud](https://img.shields.io/badge/SpringCloud-2024.x-blue?labelColor=black)
+![SpringBoot](https://img.shields.io/badge/SpringBoot-4.x-blue?labelColor=black)
 
 # Spring Cloud Stream & Kafka Streams Binder + Processor API
 
@@ -138,7 +137,7 @@ class UserStateStream(
         },
         Materialized.`as`<String, UserState, KeyValueStore<Bytes, ByteArray>>(USER_STATE_STORE)
           .withKeySerde(Serdes.StringSerde())
-          .withValueSerde(JsonSerde(UserState::class.java))
+          .withValueSerde(JacksonJsonSerde(UserState::class.java))
       )
       .toStream()
       // From here down it is just to avoid compilation errors

@@ -12,8 +12,8 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.kafka.support.serializer.JsonDeserializer
-import org.springframework.kafka.support.serializer.JsonSerde
+import org.springframework.kafka.support.serializer.JacksonJsonDeserializer
+import org.springframework.kafka.support.serializer.JacksonJsonSerde
 import java.time.Duration
 import java.util.Properties
 import java.util.function.Consumer
@@ -48,10 +48,10 @@ class UserStreamTest {
     val config =
       Properties().apply {
         setProperty(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, stringSerde.javaClass.name)
-        setProperty(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, JsonSerde::class.java.name)
+        setProperty(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, JacksonJsonSerde::class.java.name)
         setProperty(StreamsConfig.APPLICATION_ID_CONFIG, "test-" + System.currentTimeMillis())
         setProperty(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "test-server")
-        setProperty(JsonDeserializer.TRUSTED_PACKAGES, "*")
+        setProperty(JacksonJsonDeserializer.TRUSTED_PACKAGES, "*")
       }
     val topology = streamsBuilder.build()
     topologyTestDriver = TopologyTestDriver(topology, config)
@@ -59,13 +59,13 @@ class UserStreamTest {
       topologyTestDriver.createInputTopic(
         TOPIC_IN,
         stringSerde.serializer(),
-        JsonSerde(UserTokenEvent::class.java).serializer(),
+        JacksonJsonSerde(UserTokenEvent::class.java).serializer(),
       )
     topicOut =
       topologyTestDriver.createOutputTopic(
         TOPIC_OUT,
         stringSerde.deserializer(),
-        JsonSerde(UserStateEvent::class.java).deserializer(),
+        JacksonJsonSerde(UserStateEvent::class.java).deserializer(),
       )
   }
 
