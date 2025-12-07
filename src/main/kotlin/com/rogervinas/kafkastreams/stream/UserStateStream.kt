@@ -14,7 +14,7 @@ import org.apache.kafka.streams.processor.api.Record
 import org.apache.kafka.streams.state.KeyValueStore
 import org.apache.kafka.streams.state.ValueAndTimestamp
 import org.slf4j.LoggerFactory
-import org.springframework.kafka.support.serializer.JsonSerde
+import org.springframework.kafka.support.serializer.JacksonJsonSerde
 import java.time.Duration
 import java.util.function.Function
 
@@ -38,7 +38,7 @@ class UserStateStream(
         },
         Materialized.`as`<String, UserState, KeyValueStore<Bytes, ByteArray>>(USER_STATE_STORE)
           .withKeySerde(Serdes.StringSerde())
-          .withValueSerde(JsonSerde(UserState::class.java)),
+          .withValueSerde(JacksonJsonSerde(UserState::class.java)),
       )
       .toStream()
       .apply { process(ProcessorSupplier { UserStateProcessor(schedule, expiration) }, USER_STATE_STORE) }

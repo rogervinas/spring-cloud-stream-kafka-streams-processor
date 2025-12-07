@@ -137,7 +137,7 @@ class UserStateStream(
         },
         Materialized.`as`<String, UserState, KeyValueStore<Bytes, ByteArray>>(USER_STATE_STORE)
           .withKeySerde(Serdes.StringSerde())
-          .withValueSerde(JsonSerde(UserState::class.java))
+          .withValueSerde(JacksonJsonSerde(UserState::class.java))
       )
       .toStream()
       // From here down it is just to avoid compilation errors
